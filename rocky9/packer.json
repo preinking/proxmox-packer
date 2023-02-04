@@ -7,10 +7,10 @@
     "proxmox_storage_pool": "local-lvm",
     "proxmox_storage_pool_type": "lvm-thin",
     "proxmox_storage_format": "raw",
-    "proxmox_iso_pool": "ISO:iso",
-    "centos_image": "CentOS-8.5.2111-x86_64-dvd1.iso",
-    "template_name": "centos8-packer-template",
-    "template_description": "CentOS 8 Template",
+    "proxmox_iso_pool": "local:iso",
+    "rocky_image": "Rocky-9.1-x86_64-dvd.iso",
+    "template_name": "rocky9-packer-template",
+    "template_description": "Rocky Linux 8 Template",
     "version": ""
   },
   "builders": [
@@ -19,7 +19,7 @@
       "proxmox_url": "{{ user `proxmox_url`}}",
       "username": "{{user `proxmox_username`}}",
       "password": "{{user `proxmox_password`}}",
-      "insecure_skip_tls_verify": false,
+      "insecure_skip_tls_verify": true,
       "node": "{{user `proxmox_node`}}",
       "os": "l26",
       "boot_command": [
@@ -41,18 +41,21 @@
         }
       ],
       "scsi_controller": "virtio-scsi-pci",
-      "iso_file": "{{user `proxmox_iso_pool`}}/{{user `centos_image`}}",
+      "iso_file": "{{user `proxmox_iso_pool`}}/{{user `rocky_image`}}",
       "boot_wait": "10s",
-      "vm_id": "9002",
+      "vm_id": "9003",
+      "cpu_type": "host",
       "sockets": "1",
       "cores": "2",
-      "memory": "4196",
-      "http_directory": "centos8",
+      "memory": "8192",
+      "http_directory": "rocky9",
       "ssh_username": "root",
       "ssh_password": "Packer",
       "ssh_port": 22,
-      "ssh_timeout": "15m",
+      "ssh_timeout": "60m",
       "unmount_iso": true,
+      "cloud_init": true,
+      "cloud_init_storage_pool": "nvme0-lvm",
       "template_name": "{{user `template_name`}}",
       "template_description": "{{user `template_description`}}"
     }
@@ -70,10 +73,13 @@
         "rm -rf /tmp/* /var/tmp/*",
         "unset HISTFILE; rm -rf /home/*/.*history /root/.*history",
         "rm -f /root/*ks",
+        "rm -f /etc/resolv.conf",
         "passwd -d root",
         "passwd -l root"
       ],
-      "only": ["proxmox"]
+      "only": [
+        "proxmox"
+      ]
     }
   ]
 }

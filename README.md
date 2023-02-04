@@ -59,7 +59,7 @@ packer build \
   -var proxmox_username="root@pam" \
   -var proxmox_password=password \
   -var proxmox_url=https://proxmox.lan.quanby.nl:8006/api2/json \
-  rocky/packer.json
+  rocky8/packer.json
 ```
 
 There are a number of other variables you can set. You will notice these closely match the available options for the [Proxmox builder](https://packer.io/docs/builders/proxmox.html). The full list of variables you can customize is:
