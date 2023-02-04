@@ -19,7 +19,7 @@
       "proxmox_url": "{{ user `proxmox_url`}}",
       "username": "{{user `proxmox_username`}}",
       "password": "{{user `proxmox_password`}}",
-      "insecure_skip_tls_verify": true,
+      "insecure_skip_tls_verify": false
       "node": "{{user `proxmox_node`}}",
       "os": "l26",
       "boot_command": [
