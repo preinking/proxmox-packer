@@ -23,7 +23,7 @@
       "node": "{{user `proxmox_node`}}",
       "os": "l26",
       "boot_command": [
-        "<tab> text inst.ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ks.cfg<enter><wait>"
+        "<up><tab> text inst.ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ks.cfg<enter><wait>"
       ],
       "network_adapters": [
         {
@@ -55,7 +55,7 @@
       "ssh_timeout": "60m",
       "unmount_iso": true,
       "cloud_init": true,
-      "cloud_init_storage_pool": "nvme0-lvm",
+      "cloud_init_storage_pool": "local-lvm",
       "template_name": "{{user `template_name`}}",
       "template_description": "{{user `template_description`}}"
     }

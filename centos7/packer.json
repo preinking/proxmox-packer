@@ -23,7 +23,7 @@
       "node": "{{user `proxmox_node`}}",
       "os": "l26",
       "boot_command": [
-        "<tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ks.cfg<enter><wait>"
+        "<up><tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ks.cfg<enter><wait>"
       ],
       "network_adapters": [
         {
