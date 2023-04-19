@@ -1,0 +1,88 @@
+{
+  "variables": {
+    "proxmox_username": "",
+    "proxmox_password": "",
+    "proxmox_url": "",
+    "proxmox_node": "",
+    "proxmox_storage_pool": "synology-nfs",
+    "proxmox_storage_pool_type": "lvm-thin",
+    "proxmox_storage_format": "raw",
+    "proxmox_iso_pool": "synology-nfs:iso",
+    "centos_image": "CentOS-7-x86_64-dvd.iso",
+    "template_name": "centos7-packer-template",
+    "template_description": "CentOS 7 Template",
+    "version": ""
+  },
+  "builders": [
+    {
+      "type": "proxmox",
+      "proxmox_url": "{{ user `proxmox_url`}}",
+      "username": "{{user `proxmox_username`}}",
+      "password": "{{user `proxmox_password`}}",
+      "insecure_skip_tls_verify": true,
+      "node": "{{user `proxmox_node`}}",
+      "os": "l26",
+      "boot_command": [
+        "<up><tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ks.cfg<enter><wait>"
+      ],
+      "network_adapters": [
+        {
+          "bridge": "vmbr0",
+          "vlan_tag": "100",
+          "model": "virtio"
+        }
+      ],
+      "disks": [
+        {
+          "storage_pool": "{{user `proxmox_storage_pool`}}",
+          "storage_pool_type": "{{user `proxmox_storage_pool_type`}}",
+          "type": "scsi",
+          "disk_size": "10G",
+          "format": "{{user `proxmox_storage_format`}}"
+        }
+      ],
+      "scsi_controller": "virtio-scsi-pci",
+      "iso_file": "{{user `proxmox_iso_pool`}}/{{user `centos_image`}}",
+      "boot_wait": "10s",
+      "vm_id": "9001",
+      "cpu_type": "host",
+      "sockets": "1",
+      "cores": "2",
+      "memory": "8192",
+      "http_directory": "centos7",
+      "ssh_username": "root",
+      "ssh_password": "Packer",
+      "ssh_port": 22,
+      "ssh_timeout": "60m",
+      "unmount_iso": true,
+      "cloud_init": true,
+      "cloud_init_storage_pool": "synology-nfs",
+      "template_name": "{{user `template_name`}}",
+      "template_description": "{{user `template_description`}}"
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "inline": [
+        "yum install -y cloud-init qemu-guest-agent cloud-utils-growpart gdisk",
+        "shred -u /etc/ssh/*_key /etc/ssh/*_key.pub",
+        "if [ -f /etc/machine-id ]; then rm -f /etc/machine-id; touch /etc/machine-id; fi",
+        "if [ -f /var/lib/dbus/machine-id ]; then rm -f //var/lib/dbus/machine-id; touch /var/lib/dbus/machine-id; fi",
+        "rm -f /var/run/utmp",
+        ">/var/log/lastlog",
+        ">/var/log/wtmp",
+        ">/var/log/btmp",
+        "rm -rf /tmp/* /var/tmp/*",
+        "unset HISTFILE; rm -rf /home/*/.*history /root/.*history",
+        "rm -f /root/*ks",
+        "rm -f /etc/resolv.conf",
+        "passwd -d root",
+        "passwd -l root"
+      ],
+      "only": [
+        "proxmox"
+      ]
+    }
+  ]
+}
