@@ -4,10 +4,10 @@
     "proxmox_password": "",
     "proxmox_url": "",
     "proxmox_node": "",
-    "proxmox_storage_pool": "local-lvm",
+    "proxmox_storage_pool": "synology-nfs",
     "proxmox_storage_pool_type": "lvm-thin",
     "proxmox_storage_format": "raw",
-    "proxmox_iso_pool": "local:iso",
+    "proxmox_iso_pool": "synology-nfs:iso",
     "centos_image": "CentOS-7-x86_64-dvd.iso",
     "template_name": "centos7-packer-template",
     "template_description": "CentOS 7 Template",
@@ -28,6 +28,7 @@
       "network_adapters": [
         {
           "bridge": "vmbr0",
+          "vlan_tag": "100",
           "model": "virtio"
         }
       ],
@@ -54,6 +55,8 @@
       "ssh_port": 22,
       "ssh_timeout": "60m",
       "unmount_iso": true,
+      "cloud_init": true,
+      "cloud_init_storage_pool": "synology-nfs",
       "template_name": "{{user `template_name`}}",
       "template_description": "{{user `template_description`}}"
     }
@@ -64,6 +67,8 @@
       "inline": [
         "yum install -y cloud-init qemu-guest-agent cloud-utils-growpart gdisk",
         "shred -u /etc/ssh/*_key /etc/ssh/*_key.pub",
+        "if [ -f /etc/machine-id ]; then rm -f /etc/machine-id; touch /etc/machine-id; fi",
+        "if [ -f /var/lib/dbus/machine-id ]; then rm -f //var/lib/dbus/machine-id; touch /var/lib/dbus/machine-id; fi",
         "rm -f /var/run/utmp",
         ">/var/log/lastlog",
         ">/var/log/wtmp",
@@ -71,6 +76,7 @@
         "rm -rf /tmp/* /var/tmp/*",
         "unset HISTFILE; rm -rf /home/*/.*history /root/.*history",
         "rm -f /root/*ks",
+        "rm -f /etc/resolv.conf",
         "passwd -d root",
         "passwd -l root"
       ],
